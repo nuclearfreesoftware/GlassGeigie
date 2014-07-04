@@ -105,10 +105,7 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
-        	Log.d(TAG,"Read was successful");
-        	byte[] test = characteristic.getValue();
-        	Log.d(TAG,"Length of read: " + String.valueOf(test.length));
-        	
+          	
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
@@ -121,7 +118,7 @@ public class BluetoothLeService extends Service {
         	byte[] test = characteristic.getValue();
         	String test2 = new String(test);
         	
-        	//Log.d(TAG, test2);
+        	Log.d(TAG, test2);
         	if(test2.contains("$")) {
         		fullstring = fullstring += test2.substring(0,test2.indexOf("$"));
         		Log.d(TAG, "Start?");
@@ -342,10 +339,14 @@ public class BluetoothLeService extends Service {
 		
 		BluetoothGattCharacteristic mChara = mBluetoothGatt.getService(UUID.fromString("ef080d8c-c3be-41ff-bd3f-05a5f4795d7f")).getCharacteristic(UUID.fromString("a1e8f5b1-696b-4e4c-87c6-69dfe0b0093b"));
 		if(mChara != null) {
+			Log.d(TAG, "found characteristic");
 			mBluetoothGatt.setCharacteristicNotification(mChara, true);
 			BluetoothGattDescriptor descriptor = mChara.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
 			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 		    mBluetoothGatt.writeDescriptor(descriptor);  
+		}
+		else {
+			Log.d(TAG, "characteristic not found");
 		}
 		
 

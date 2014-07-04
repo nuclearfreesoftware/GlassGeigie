@@ -129,6 +129,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+    	unregisterReceiver(mGattUpdateReceiver);
         mMainCardScroller.deactivate();
         super.onPause();
     }
@@ -161,16 +162,14 @@ public class MainActivity extends Activity {
             	
                 List<BluetoothGattService> gattServices;
                 gattServices = mBluetoothLeService.getSupportedGattServices();
-                Log.d(TAG,"mosize " + String.valueOf(gattServices.size()));
 				for (BluetoothGattService gattService : gattServices) {
 					String uuid = gattService.getUuid().toString();
-					Log.d(TAG, uuid + " END");
-					Log.d(TAG,"ef080d8c-c3be-41ff-bd3f-05a5f4795d7f"+ " END");
+					Log.d(TAG, "UUID of Service: " + uuid);
 					if (uuid.equals("ef080d8c-c3be-41ff-bd3f-05a5f4795d7f")) {
 						Log.d(TAG, "BLEBEE Services detected");
-						List<BluetoothGattCharacteristic> gattCharacteristics = gattService
-								.getCharacteristics();
+						List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
 						for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+							Log.d(TAG, "UUID of Chara: " + gattCharacteristic.getUuid().toString());
 							if (gattCharacteristic.getUuid().toString().equals("a1e8f5b1-696b-4e4c-87c6-69dfe0b0093b")) {
 								Log.d(TAG, "Found RX characteristic");
 								mChara = gattCharacteristic;
