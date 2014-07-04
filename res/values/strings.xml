@@ -5,8 +5,7 @@
 
     <string name="text_show">Show Radiation Data</string>
     <string name="text_scan">Scan for bGeigie nano w BLEBEE</string>
-    <string name="text_connect">Connect</string>
-    <string name="text_about">About</string>
+    <string name="text_disconnect">Disconnect</string>
     
     <string name="text_newcard">Added new card!</string>
     

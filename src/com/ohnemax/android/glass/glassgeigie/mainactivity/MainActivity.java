@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
 	private Handler mHandler;
 
 	private BleDeviceList mDevices;
+	private String mDeviceAddress;
 
 	private BluetoothAdapter mBluetoothAdapter;
 	public BluetoothLeService mBluetoothLeService = null;
@@ -107,13 +108,16 @@ public class MainActivity extends Activity {
 		}
     	Log.d(TAG, "created devices");
     	
+    	
+    	
     	Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+    	//startService(gattServiceIntent);
+    	bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     	
         menucards = new MenuCards(this);
         menucards.addMenuItem(R.string.text_show);
         menucards.addMenuItem(R.string.text_scan);
-        menucards.addMenuItem(R.string.text_about);
+        menucards.addMenuItem(R.string.text_disconnect);
         mMainCardAdapter = new GeigieCardScrollAdapter(menucards.getCards());
         mMainCardScroller = new CardScrollView(this);
         mMainCardScroller.setAdapter(mMainCardAdapter);
@@ -124,14 +128,26 @@ public class MainActivity extends Activity {
     
     protected void onResume() {
         super.onResume();
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        if (mBluetoothLeService != null) {
+            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            Log.d(TAG, "Connect request result=" + result);
+        }
         mMainCardScroller.activate();
     }
 
     @Override
     protected void onPause() {
-    	unregisterReceiver(mGattUpdateReceiver);
         mMainCardScroller.deactivate();
         super.onPause();
+        unregisterReceiver(mGattUpdateReceiver);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mServiceConnection);
+        mBluetoothLeService = null;
     }
     
     // Handles various events fired by the Service.
@@ -191,6 +207,8 @@ public class MainActivity extends Activity {
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
             	Log.d(TAG, "MainActivity has received data");
+            	int readi = intent.getIntExtra("lastreading", 0);
+            	Log.d(TAG, "MainActivity has reading: " + String.valueOf(readi));
             	//BluetoothLeService.
                 //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
@@ -297,7 +315,7 @@ public class MainActivity extends Activity {
                 //	mBluetoothLeService.readCharacteristic(mChara);
                 	Log.d(TAG, "Try to activate notifications");
                 	mBluetoothLeService.activateNotifications();
-          //      	startService(new Intent(MainActivity.this, GeigieLiveCard.class));
+               	startService(new Intent(MainActivity.this, GeigieLiveCard.class));
  
                 }
                 if(position == 1) {
@@ -308,6 +326,10 @@ public class MainActivity extends Activity {
                 	scanLeDevice(true);
                 }
                 if(position == 2) {
+                	
+                	// disconnect
+                	mBluetoothLeService.disconnect();
+                	mBluetoothLeService.close();
                 	menucards.removeBle();
                     mMainCardAdapter.notifyDataSetChanged();
                 	mMainCardScroller.setSelection(0);
@@ -319,7 +341,7 @@ public class MainActivity extends Activity {
                 		BluetoothDevice device = mDevices.getDevice(deviceId);
                 		Log.d(TAG, "Try to connect to "
     							+ deviceId);
-                		String mDeviceAddress = device.getAddress();
+                		mDeviceAddress = device.getAddress();
                 		if (mBluetoothLeService != null) {
                 			mBluetoothLeService.connect(mDeviceAddress);
                 		}

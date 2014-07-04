@@ -41,12 +41,47 @@ public class GeigieLiveCard extends Service {
 
 	protected static final String TAG = "geigerlivecard";
 
+	private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.d(TAG, "in onreceive of live card");
+			final String action = intent.getAction();
+			//String test = intent.getStringExtra(BluetoothLeService.ACTION_DATA_AVAILABLE);
+
+			Log.d(TAG, "action " + action);
+			Log.d(TAG, "action testing " + BluetoothLeService.ACTION_DATA_AVAILABLE);
+
+			if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+				Log.d(TAG, "LiveCard has received data");
+				int readi = intent.getIntExtra("lastreading", 0);
+				if(readi > 0) {
+					Log.d(TAG, "LiveCard has reading: " + String.valueOf(readi));
+					mLiveCardView.setTextViewText(R.id.cpm, String.valueOf(readi) + " CPM");
+					double doserate = ((double) readi) / 334.0;
+					Log.d(TAG, "dose " + String.valueOf(doserate));
+					doserate = (double)Math.round(doserate * 1000) / 1000;
+					mLiveCardView.setTextViewText(R.id.dose, String.valueOf(doserate) + " µSv/h");
+					mLiveCardView.setTextViewText(R.id.date, "Testdate");
+				}
+				String meadate = intent.getStringExtra("measuredate");
+				if(meadate != null) {
+					mLiveCardView.setTextViewText(R.id.date, meadate);
+				}
+				mLiveCard.setViews(mLiveCardView);
+
+				//BluetoothLeService.
+				//displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+			}
+
+		}
+	};
+	
 	public void onCreate() {
        super.onCreate();
        
-		registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+       Intent forreceiver = this.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
-   }
+    }
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -82,64 +117,49 @@ public class GeigieLiveCard extends Service {
 		return START_STICKY;
 	}
 	   
-	   private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-	        @Override
-	        public void onReceive(Context context, Intent intent) {
-	        	final String action = intent.getAction();
-	        	String test = intent.getStringExtra(BluetoothLeService.ACTION_DATA_AVAILABLE);
-	                
-          	    Log.d(TAG, test);
-          	    fullstring = test;
-	        }
-	    };
 
 
-	    
-	    private class UpdateLiveCardRunnable implements Runnable{
 
-	        private boolean mIsStopped = false;
 
-	        /*
-	         * If you are executing a long running task to get data to update a
-	         * live card(e.g, making a web call), do this in another thread or
-	         * AsyncTask.
-	         */
-	        public void run(){
-	        	if(!isStopped()){
+	private class UpdateLiveCardRunnable implements Runnable{
 
-	        		
-	        		mLiveCardView.setTextViewText(R.id.device_lat_info,
-	        				fullstring);
+		private boolean mIsStopped = false;
 
-	        		mLiveCardView.setTextViewText(R.id.device_long_info,
-	        				"Dev. Longitude:");                 	
+		/*
+		 * If you are executing a long running task to get data to update a
+		 * live card(e.g, making a web call), do this in another thread or
+		 * AsyncTask.
+		 */
+		public void run(){
+			if(!isStopped()){
 
-	        	}
 
-	        	// Always call setViews() to update the live card's RemoteViews.
-	        	mLiveCard.setViews(mLiveCardView);
+				mLiveCardView.setTextViewText(R.id.cpm," - Wait - ");
+    	
 
-	        	// Queue another score update in 30 seconds.
-	        	mHandler.postDelayed(mUpdateLiveCardRunnable, DELAY_MILLIS);
-	        }
-	        
-	        
-	        public boolean isStopped() {
-	            return mIsStopped;
-	        }
+			}
 
-	        public void setStop(boolean isStopped) {
-	            this.mIsStopped = isStopped;
-	        }
-	        
-	    }
-	    
-	    private static IntentFilter makeGattUpdateIntentFilter() {
-	        final IntentFilter intentFilter = new IntentFilter();
-	        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
-	        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-	        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-	        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-	        return intentFilter;
-	    }
+			// Always call setViews() to update the live card's RemoteViews.
+			mLiveCard.setViews(mLiveCardView);
+
+			// Queue another score update in 30 seconds.
+			//mHandler.postDelayed(mUpdateLiveCardRunnable, DELAY_MILLIS);
+		}
+
+
+		public boolean isStopped() {
+			return mIsStopped;
+		}
+
+		public void setStop(boolean isStopped) {
+			this.mIsStopped = isStopped;
+		}
+
+	}
+
+	private static IntentFilter makeGattUpdateIntentFilter() {
+		final IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+		return intentFilter;
+	}
 }

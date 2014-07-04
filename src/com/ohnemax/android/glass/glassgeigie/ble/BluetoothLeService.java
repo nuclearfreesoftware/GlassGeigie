@@ -44,7 +44,11 @@ public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
  
     //private ByteBuffer rxbuffer = ByteBuffer.allocate(4096);
+   
+    
+    // Data from bGeigie
     private String fullstring = "";
+    private int lastreading = -1;
     
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -118,12 +122,17 @@ public class BluetoothLeService extends Service {
         	byte[] test = characteristic.getValue();
         	String test2 = new String(test);
         	
-        	Log.d(TAG, test2);
         	if(test2.contains("$")) {
         		fullstring = fullstring += test2.substring(0,test2.indexOf("$"));
-        		Log.d(TAG, "Start?");
+        		//Log.d(TAG, "Start?");
         		Log.d(TAG, "Old fullstring: " + fullstring);
+        		String[] extract =  fullstring.split(",");
+        		lastreading = Integer.parseInt(extract[3]);
+        		String measuredate = extract[2];
+        		Log.d(TAG, "lastreading: " + String.valueOf(lastreading) + " cpm");
         		broadcastFullstringUpdate(ACTION_DATA_AVAILABLE, characteristic, fullstring);
+        		broadcastReadingUpdate(ACTION_DATA_AVAILABLE, lastreading);
+        		broadcastDateUpdate(ACTION_DATA_AVAILABLE, measuredate);
         		fullstring = "";
         		fullstring = fullstring += test2.substring(test2.indexOf("$"));
         	
@@ -173,6 +182,19 @@ public class BluetoothLeService extends Service {
 
     	sendBroadcast(intent);
     }
+    
+    private void broadcastReadingUpdate(final String action, int lastreading) {
+    	final Intent intent = new Intent(action);
+    	intent.putExtra("lastreading",lastreading);
+
+    	sendBroadcast(intent);
+    }    
+    
+    private void broadcastDateUpdate(final String action, String measuredate) {
+    	final Intent intent = new Intent(action);
+    	intent.putExtra("measuredate",measuredate);
+    	sendBroadcast(intent);
+    }    
  
     public class LocalBinder extends Binder {
         public BluetoothLeService getService() {
@@ -190,8 +212,8 @@ public class BluetoothLeService extends Service {
         // After using a given device, you should make sure that BluetoothGatt.close() is called
         // such that resources are cleaned up properly.  In this particular example, close() is
         // invoked when the UI is disconnected from the Service.
-        close();
-        return super.onUnbind(intent);
+       // close();
+       return super.onUnbind(intent);
     }
  
     private final IBinder mBinder = new LocalBinder();
@@ -270,6 +292,7 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public void disconnect() {
+    	Log.v(TAG, "Disconnect closed");
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
@@ -282,6 +305,7 @@ public class BluetoothLeService extends Service {
      * released properly.
      */
     public void close() {
+    	Log.v(TAG,"Called close");
         if (mBluetoothGatt == null) {
             return;
         }

@@ -4,123 +4,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
+    android:background="@drawable/bgeigie"
     >
 
     <RelativeLayout
         android:id="@+id/left_column"
-        android:layout_width="@dimen/glass_card_left_column_width"
+        android:layout_width="389px"
         android:layout_height="match_parent"
-        android:layout_marginLeft="15px"
-        android:layout_marginRight="15px"
-        android:layout_marginTop="15px"
         android:layout_marginBottom="15px"
-        >
-	
-        <TextView
-        android:id="@+id/device_lat_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="15px"
-        android:gravity="left" />
-                
-        <TextView
-        android:id="@+id/device_lat"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/device_lat_info"
-        android:textSize="30px"
-        android:gravity="left" />
+        android:layout_marginLeft="89px"
+        android:layout_marginRight="15px" >
         
         <TextView
-        android:id="@+id/device_long_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/device_lat"
-        android:textSize="15px"
-        android:gravity="left" />
-                
-        <TextView
-        android:id="@+id/device_long"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/device_long_info"
-        android:textSize="30px"
-        android:gravity="left" />
+            android:id="@+id/something"
+            android:layout_width="match_parent"
+            android:layout_height="115px"
+            android:gravity="left"
+            android:textSize="15px" />
         
         <TextView
-        android:id="@+id/data_user"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/device_long"
-        android:textSize="30px"
-        android:gravity="left" />
+            android:id="@+id/cpm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/something"
+            android:gravity="left"
+            android:textSize="80px" />
         
+        <TextView
+            android:id="@+id/dose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cpm"
+            android:gravity="left"
+            android:textSize="30px" />
+        
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dose"
+            android:gravity="left"
+            android:textSize="30px" />
         	
         <!-- Put widgets for the left column inside this RelativeLayout. -->
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/glass_card_body_height"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="@dimen/glass_card_two_column_margin"
-        android:layout_marginRight="@dimen/glass_card_margin"
-        android:layout_marginTop="@dimen/glass_card_margin"
-        android:layout_marginBottom="@dimen/glass_card_footer_margin"
-        android:layout_toRightOf="@+id/left_column"
-        tools:ignore="UselessLeaf"
-        >
-
-        <TextView
-        android:id="@+id/cpm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="70px"
-        android:gravity="center" />
-        
-        <TextView
-        android:id="@+id/dose_rate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/cpm"
-        android:textSize="50px"
-        android:gravity="center" />
-        
-        <TextView
-        android:id="@+id/status_text_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/dose_rate"
-        android:textSize="20px"
-        android:gravity="left" />
-        
-        <TextView
-        android:id="@+id/data_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/status_text_info"
-        android:textSize="40px"
-        android:gravity="left" />
-
-        <TextView
-        android:id="@+id/distance_text_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/data_date"
-        android:textSize="20px"
-        android:gravity="left" />
-                
-        <TextView
-        android:id="@+id/data_distance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/distance_text_info"
-        android:textSize="40px"
-        android:gravity="left" />
-        
-        <!-- Put widgets for the right column inside this RelativeLayout. -->
 
     </RelativeLayout>
 
