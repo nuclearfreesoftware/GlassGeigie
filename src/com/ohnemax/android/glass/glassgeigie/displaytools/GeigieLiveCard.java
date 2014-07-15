@@ -7,6 +7,7 @@ import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.LiveCard.PublishMode;
 import com.ohnemax.android.glass.glassgeigie.R;
 import com.ohnemax.android.glass.glassgeigie.ble.BluetoothLeService;
+import com.ohnemax.android.glass.glassgeigie.displaytools.MenuActivity;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -14,9 +15,11 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.StrictMode;
@@ -39,7 +42,30 @@ public class GeigieLiveCard extends Service {
 
 	protected String fullstring = "";
 
+	private BluetoothLeService mBluetoothLeService;
+	
 	protected static final String TAG = "geigerlivecard";
+	
+	private final ServiceConnection mServiceConnection = new ServiceConnection() {
+		 
+        
+
+		@Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            if (!mBluetoothLeService.initialize()) {
+                Log.e(TAG, "Unable to initialize BluetoothLeService from LiveCard");
+            }
+            Log.d(TAG, "BluetoothLeService initialized from LiveCard");
+
+        }
+ 
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBluetoothLeService = null;
+        }
+    };
+
 
 	private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
 		@Override
@@ -75,12 +101,16 @@ public class GeigieLiveCard extends Service {
 
 		}
 	};
+
 	
 	public void onCreate() {
        super.onCreate();
        
        Intent forreceiver = this.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
+   		Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+   		//startService(gattServiceIntent);
+   		bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
 	@Override
@@ -99,14 +129,10 @@ public class GeigieLiveCard extends Service {
 			// Inflate a layout into a remote view
 			mLiveCardView = new RemoteViews(getPackageName(),R.layout.service_geigieglass);
 
+            Intent menuIntent = new Intent(this, MenuActivity.class);
 
-			// Set up the live card's action with a pending intent
-			//	            // to show a menu when tapped
-				            Intent menuIntent = new Intent(this, GeigieLiveCard.class);
-				            menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-				                Intent.FLAG_ACTIVITY_CLEAR_TASK);
-				            mLiveCard.setAction(PendingIntent.getActivity(
-				                this, 0, menuIntent, 0));
+            menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            mLiveCard.setAction(PendingIntent.getActivity(this, 0, menuIntent, 0));
 
 			// Publish the live card
 			mLiveCard.publish(PublishMode.REVEAL);
@@ -117,7 +143,21 @@ public class GeigieLiveCard extends Service {
 		return START_STICKY;
 	}
 	   
+	@Override
+    public void onDestroy() {
+		mBluetoothLeService.disconnect();
+    	mBluetoothLeService.close();
+        if (mLiveCard != null && mLiveCard.isPublished()) {
+          //Stop the handler from queuing more Runnable jobs
+           /// mUpdateLiveCardRunnable.setStop(true);
 
+            mLiveCard.unpublish();
+            mLiveCard = null;
+        }
+        unregisterReceiver(mGattUpdateReceiver);
+        unbindService(mServiceConnection);
+        super.onDestroy();
+    }
 
 
 

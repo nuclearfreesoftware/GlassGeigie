@@ -221,15 +221,13 @@ public class MainActivity extends Activity {
         }
     }
  
-    // Demonstrates how to iterate through the supported GATT Services/Characteristics.
-    // In this sample, we populate the data structure that is bound to the ExpandableListView
-    // on the UI.
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
         
         for (BluetoothGattService gattService : gattServices) {
         	String uuid = gattService.getUuid().toString();
         	Log.d(TAG, uuid);
+        	// THIS uuid is the BLEBee Service
         	if(uuid == "ef080d8c-c3be-41ff-bd3f-05a5f4795d7f") {
         		Log.d(TAG, "BLEBEE Services detected");
         		List<BluetoothGattCharacteristic> gattCharacteristics =
@@ -311,11 +309,9 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "Clicked main card menu at position " + position + ", row-id " + id);
                 int soundEffect = Sounds.TAP;
                 if(position == 0) {
-                //	Log.d(TAG, "Try to read from RX");
-                //	mBluetoothLeService.readCharacteristic(mChara);
                 	Log.d(TAG, "Try to activate notifications");
                 	mBluetoothLeService.activateNotifications();
-               	startService(new Intent(MainActivity.this, GeigieLiveCard.class));
+                	startService(new Intent(MainActivity.this, GeigieLiveCard.class));
  
                 }
                 if(position == 1) {

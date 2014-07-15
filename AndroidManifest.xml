@@ -26,6 +26,11 @@
                 />
         </activity>
         
+        <activity
+            android:name=".displaytools.MenuActivity"
+            android:exported="true"
+            />
+        
        <service
             android:name=".ble.BluetoothLeService"
             android:exported="true"

@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,6 +29,7 @@ import android.view.MenuItem;
 import java.lang.Runnable;
 
 import com.ohnemax.android.glass.glassgeigie.R;
+import com.ohnemax.android.glass.glassgeigie.ble.BluetoothLeService;
 
 /**
  * Activity showing an options menu to stop the {@link OpenGlService}.
@@ -35,15 +37,21 @@ import com.ohnemax.android.glass.glassgeigie.R;
 public class MenuActivity extends Activity {
 
     private final Handler mHandler = new Handler();
+    
+	protected static final String TAG = "geigermenulivecard";
 
+
+	
     @Override
     public void onAttachedToWindow() {
+    	Log.v(TAG, "got to menu!");
         super.onAttachedToWindow();
         openOptionsMenu();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+    	Log.v(TAG, "create options menu");
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.geigie_livecard, menu);
         return true;
@@ -51,6 +59,7 @@ public class MenuActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+    	Log.v(TAG, "tried to click");
         // Handle item selection.
         switch (item.getItemId()) {
             case R.id.stop:
@@ -62,6 +71,7 @@ public class MenuActivity extends Activity {
                     @Override
                     public void run() {
                         stopService(new Intent(MenuActivity.this, GeigieLiveCard.class));
+                        stopService(new Intent(MenuActivity.this, BluetoothLeService.class));
                     }
                 });
                 return true;
