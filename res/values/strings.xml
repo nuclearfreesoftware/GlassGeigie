@@ -3,8 +3,8 @@
     <string name="voice_trigger">measure radiation</string>
     <string name="app_name">GlassGeigie</string>
 
-    <string name="text_show">Show Radiation Data</string>
-    <string name="text_scan">Scan for bGeigie nano w BLEBEE</string>
+    <string name="text_show">Show Radiation Data (Connect first!)</string>
+    <string name="text_scan">Scan for bGeigie nano with BLEBee</string>
     <string name="text_disconnect">Disconnect</string>
     
     <string name="text_newcard">Added new card!</string>

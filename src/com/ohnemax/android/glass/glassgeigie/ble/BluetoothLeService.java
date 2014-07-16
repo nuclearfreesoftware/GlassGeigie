@@ -1,17 +1,37 @@
-/*
- * Copyright (C) 2013 The Android Open Source Project
+/* Copyright (C) 2014, Moritz Kütt
+ * 
+ * This file is part of GlassGeigie.
+ * 
+ * GlassGeigie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * GlassGeigie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GlassGeigie.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * 
+ * This file incorporates work covered by the following copyright and  
+ * permission notice:
+ * 
+ *     Copyright (C) 2013 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *          http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
  */
  
 package com.ohnemax.android.glass.glassgeigie.ble;
@@ -36,16 +56,10 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
  
-/**
- * Service for managing connection and data communication with a GATT server hosted on a
- * given Bluetooth LE device.
- */
+
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
  
-    //private ByteBuffer rxbuffer = ByteBuffer.allocate(4096);
-   
-    
     // Data from bGeigie
     private String fullstring = "";
     private int lastreading = -1;
@@ -71,10 +85,6 @@ public class BluetoothLeService extends Service {
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
  
-    
- 
-    // Implements callback methods for GATT events that the app cares about.  For example,
-    // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -140,12 +150,6 @@ public class BluetoothLeService extends Service {
         	else {
         		fullstring = fullstring += test2;
         	}
-//        	rxbuffer.put(characteristic.getValue());
-//        	if(rxbuffer.remaining() <= 2000) {
-//        		Log.d(TAG, "Long value output");
-//        		Log.d(TAG, String.valueOf(rxbuffer.asCharBuffer()));
-//        		rxbuffer.clear();
-//        	}
         	
         }
     };
@@ -243,16 +247,6 @@ public class BluetoothLeService extends Service {
         return true;
     }
  
-    /**
-     * Connects to the GATT server hosted on the Bluetooth LE device.
-     *
-     * @param address The device address of the destination device.
-     *
-     * @return Return true if the connection is initiated successfully. The connection result
-     *         is reported asynchronously through the
-     *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     *         callback.
-     */
     public boolean connect(final String address) {
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
@@ -285,12 +279,6 @@ public class BluetoothLeService extends Service {
         return true;
     }
  
-    /**
-     * Disconnects an existing connection or cancel a pending connection. The disconnection result
-     * is reported asynchronously through the
-     * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     * callback.
-     */
     public void disconnect() {
     	Log.v(TAG, "Disconnect closed");
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
@@ -300,10 +288,6 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.disconnect();
     }
  
-    /**
-     * After using a given BLE device, the app must call this method to ensure resources are
-     * released properly.
-     */
     public void close() {
     	Log.v(TAG,"Called close");
         if (mBluetoothGatt == null) {
@@ -313,13 +297,6 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt = null;
     }
  
-    /**
-     * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
-     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
-     * callback.
-     *
-     * @param characteristic The characteristic to read from.
-     */
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -328,12 +305,6 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.readCharacteristic(characteristic);
     }
  
-    /**
-     * Enables or disables notification on a give characteristic.
-     *
-     * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
-     */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
@@ -344,12 +315,6 @@ public class BluetoothLeService extends Service {
  
     }
  
-    /**
-     * Retrieves a list of supported GATT services on the connected device. This should be
-     * invoked only after {@code BluetoothGatt#discoverServices()} completes successfully.
-     *
-     * @return A {@code List} of supported services.
-     */
     public List<BluetoothGattService> getSupportedGattServices() {
         if (mBluetoothGatt == null) return null;
  
@@ -361,10 +326,12 @@ public class BluetoothLeService extends Service {
 		Log.v(TAG, "Activate notifications: "
 				+ mBluetoothDeviceAddress);
 		
+		// uuid for service & rx characteristic of BLEBee
 		BluetoothGattCharacteristic mChara = mBluetoothGatt.getService(UUID.fromString("ef080d8c-c3be-41ff-bd3f-05a5f4795d7f")).getCharacteristic(UUID.fromString("a1e8f5b1-696b-4e4c-87c6-69dfe0b0093b"));
 		if(mChara != null) {
 			Log.d(TAG, "found characteristic");
 			mBluetoothGatt.setCharacteristicNotification(mChara, true);
+			// standard uuid for BLE notifications
 			BluetoothGattDescriptor descriptor = mChara.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
 			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 		    mBluetoothGatt.writeDescriptor(descriptor);  
@@ -373,8 +340,6 @@ public class BluetoothLeService extends Service {
 			Log.d(TAG, "characteristic not found");
 		}
 		
-
-		//gatt.writeDescriptor(descriptor);
 
 	}
 }

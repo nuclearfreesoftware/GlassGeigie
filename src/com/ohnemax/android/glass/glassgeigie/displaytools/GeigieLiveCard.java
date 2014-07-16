@@ -1,3 +1,22 @@
+/* Copyright (C) 2014, Moritz Kütt
+ * 
+ * This file is part of GlassGeigie.
+ * 
+ * GlassGeigie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * GlassGeigie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GlassGeigie.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+
 package com.ohnemax.android.glass.glassgeigie.displaytools;
 
 import java.util.List;
@@ -47,8 +66,6 @@ public class GeigieLiveCard extends Service {
 	protected static final String TAG = "geigerlivecard";
 	
 	private final ServiceConnection mServiceConnection = new ServiceConnection() {
-		 
-        
 
 		@Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
@@ -72,10 +89,6 @@ public class GeigieLiveCard extends Service {
 		public void onReceive(Context context, Intent intent) {
 			Log.d(TAG, "in onreceive of live card");
 			final String action = intent.getAction();
-			//String test = intent.getStringExtra(BluetoothLeService.ACTION_DATA_AVAILABLE);
-
-			Log.d(TAG, "action " + action);
-			Log.d(TAG, "action testing " + BluetoothLeService.ACTION_DATA_AVAILABLE);
 
 			if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
 				Log.d(TAG, "LiveCard has received data");
@@ -94,50 +107,38 @@ public class GeigieLiveCard extends Service {
 					mLiveCardView.setTextViewText(R.id.date, meadate);
 				}
 				mLiveCard.setViews(mLiveCardView);
-
-				//BluetoothLeService.
-				//displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
 			}
-
 		}
 	};
 
 	
 	public void onCreate() {
-       super.onCreate();
-       
-       Intent forreceiver = this.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-
-   		Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-   		//startService(gattServiceIntent);
+		super.onCreate();
+    	Intent forreceiver = this.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+		Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
    		bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (mLiveCard == null) {
-
-			// Get an instance of a live card
 			mLiveCard = new LiveCard(this, LIVE_CARD_TAG);
-
-			// Inflate a layout into a remote view
+			
+			//Set GlassGeigie Layout
 			mLiveCardView = new RemoteViews(getPackageName(),R.layout.service_geigieglass);
 
+			// Set MenuActivity
             Intent menuIntent = new Intent(this, MenuActivity.class);
-
             menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             mLiveCard.setAction(PendingIntent.getActivity(this, 0, menuIntent, 0));
 
-			// Publish the live card
-			mLiveCard.publish(PublishMode.REVEAL);
 
-			// Queue the update text runnable
+			mLiveCard.publish(PublishMode.REVEAL);
 			mHandler.post(mUpdateLiveCardRunnable);
 		}
 		return START_STICKY;
@@ -145,17 +146,18 @@ public class GeigieLiveCard extends Service {
 	   
 	@Override
     public void onDestroy() {
+		// Clean up Bluetooth
 		mBluetoothLeService.disconnect();
     	mBluetoothLeService.close();
+    	unregisterReceiver(mGattUpdateReceiver);
+        unbindService(mServiceConnection);
+        
+        // Clean up Live Card
         if (mLiveCard != null && mLiveCard.isPublished()) {
-          //Stop the handler from queuing more Runnable jobs
-           /// mUpdateLiveCardRunnable.setStop(true);
-
             mLiveCard.unpublish();
             mLiveCard = null;
         }
-        unregisterReceiver(mGattUpdateReceiver);
-        unbindService(mServiceConnection);
+        
         super.onDestroy();
     }
 
@@ -165,25 +167,11 @@ public class GeigieLiveCard extends Service {
 
 		private boolean mIsStopped = false;
 
-		/*
-		 * If you are executing a long running task to get data to update a
-		 * live card(e.g, making a web call), do this in another thread or
-		 * AsyncTask.
-		 */
 		public void run(){
 			if(!isStopped()){
-
-
 				mLiveCardView.setTextViewText(R.id.cpm," - Wait - ");
-    	
-
 			}
-
-			// Always call setViews() to update the live card's RemoteViews.
 			mLiveCard.setViews(mLiveCardView);
-
-			// Queue another score update in 30 seconds.
-			//mHandler.postDelayed(mUpdateLiveCardRunnable, DELAY_MILLIS);
 		}
 
 
