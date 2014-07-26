@@ -203,6 +203,7 @@ public class MainActivity extends Activity {
 					if (uuid.equals("ef080d8c-c3be-41ff-bd3f-05a5f4795d7f")) {
 						Log.d(TAG, "BLEBEE Services detected");
 						List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+						Log.d(TAG, String.valueOf(gattCharacteristics.size()));
 						for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
 							Log.d(TAG, "UUID of Chara: " + gattCharacteristic.getUuid().toString());
 							if (gattCharacteristic.getUuid().toString().equals("a1e8f5b1-696b-4e4c-87c6-69dfe0b0093b")) {
